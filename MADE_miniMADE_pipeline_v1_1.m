@@ -169,6 +169,7 @@ interp_epoch = 1; % 0 = NO, 1 = YES.
 frontal_channels = {'E1', 'E8', 'E14', 'E21', 'E25', 'E32', 'E17', 'E125', 'E126', 'E127', 'E128'}; % If you set interp_epoch = 1, enter the list of frontal channels to check (see manuscript for detail)
 % recommended list for EGI 128 channel net: {'E1', 'E8', 'E14', 'E21', 'E25', 'E32', 'E17'}
 % recommended list for EGI 64 channel net: {'E1', 'E5', 'E10', 'E17'}
+delete_frontal_channels = 1; % 0 = NO (do not delete frontal channels), 1 = YES (delete frontal channels);
 
 %13. Do you want to interpolate the bad channels that were removed from data?
 % Note: because miniMADE automatically skips FASTER and ICA, this field will not affect miniMADE preprocessing
@@ -1168,6 +1169,22 @@ for subject=1:length(datafile_names)
         continue % ignore rest of the processing and go to next datafile
     else
         total_epochs_after_artifact_rejection(subject)=EEG.trials;
+    end
+
+    %% STEP 14.1: Remove frontal_channels
+    if delete_frontal_channels==1
+        chans_labels=cell(1,EEG.nbchan);
+        for i=1:EEG.nbchan
+            chans_labels{i}= EEG.chanlocs(i).labels;
+        end
+        [chans,chansidx] = ismember(frontal_channels, chans_labels);
+        frontal_channels_idx = chansidx(chansidx ~= 0);
+        if isempty(frontal_channels_idx)==1
+            warning('No frontal channels from the list present in the data to be removed.');
+        else
+            EEG = pop_select( EEG,'nochannel', frontal_channels_idx);
+            EEG = eeg_checkset( EEG );
+        end
     end
     
     %% STEP 15: Interpolate deleted channels
