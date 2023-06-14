@@ -95,11 +95,13 @@ clear % clear matlab workspace
 clc % clear matlab command window
 
 % add path to MADE pipeline
-addpath(genpath('path to MADE pipeline folder'))
+% addpath(genpath('path to MADE pipeline folder'))
 % for example: addpath(genpath('C:\Users\Berger\Documents\MADE-EEG-preprocessing-pipeline-master'));
 
-addpath('path to eeglab folder');% enter the path of the EEGLAB folder in this line
+% addpath('path to eeglab folder');% enter the path of the EEGLAB folder in this line
 % for example: addpath(genpath('C:\Users\Berger\Documents\eeglab13_4_4b'));
+
+addpath("adjusted_adjust_scripts");
 eeglab % open eeglab
 
 % Do you want to use miniMADE (recommended for low density (<32 channels) systems)
@@ -108,71 +110,72 @@ run_miniMADE = 0; % 0 = NO (run full MADE pipeline),  = YES (run MADE pipeline w
 % miniMADE also skips interim saving regardless of user selection
 
 % 1. Enter the path of the folder that has the raw data to be analyzed
-rawdata_location = '....';
+rawdata_location = 'C:\Users\LevittLab\Downloads\GradSchoolData_MADE';
 
 % 2. Enter the path of the folder where you want to save the processed data
-output_location = '....';
+output_location = 'GradOutputFolder';
+output_location = fullfile(pwd, output_location);
 
 % 3. Enter the path of the channel location file
-channel_locations = ['path' filesep 'channel location file name.extension'];
+channel_locations = ['C:\Users\LevittLab\projects\artifact-removal-pipeline' filesep 'GSN-HydroCel-129.sfp'];
 
 % 4. Do your data need correction for anti-aliasing filter and/or task related time offset?
 adjust_time_offset = 0; % 0 = NO (no correction), 1 = YES (correct time offset)
 % If your data need correction for time offset, initialize the offset time (in milliseconds)
-filter_timeoffset   = xx; % anti-aliasing time offset (in milliseconds). 0 = No time offset
-stimulus_timeoffset = xx; % stimulus related time offset (in milliseconds). 0 = No time offset
-response_timeoffset = xx; % response related time offset (in milliseconds). 0 = No time offset
+filter_timeoffset   = 0; % anti-aliasing time offset (in milliseconds). 0 = No time offset
+stimulus_timeoffset = 0; % stimulus related time offset (in milliseconds). 0 = No time offset
+response_timeoffset = 0; % response related time offset (in milliseconds). 0 = No time offset
 stimulus_markers = {'xxx', 'xxx'}; % enter the stimulus makers that need to be adjusted for time offset
 respose_markers  = {'xxx', 'xxx'}; % enter the response makers that need to be adjusted for time offset
 
 % 5. Do you want to down sample the data?
 down_sample = 0; % 0 = NO (no down sampling), 1 = YES (down sampling)
-sampling_rate = xxx; % set sampling rate (in Hz), if you want to down sample
+sampling_rate = 500; % set sampling rate (in Hz), if you want to down sample
 
 % 6. Do you want to delete the outer layer of the channels? (Rationale has been described in MADE manuscript)
 %    This function can also be used to down sample electrodes. For example, if EEG was recorded with 128 channels but you would
 %    like to analyse only 64 channels, you can assign the list of channnels to be excluded in the 'outerlayer_channel' variable.    
-delete_outerlayer = 0; % 0 = NO (do not delete outer layer), 1 = YES (delete outerlayer);
+delete_outerlayer = 1; % 0 = NO (do not delete outer layer), 1 = YES (delete outerlayer);
 % If you want to delete outer layer, make a list of channels to be deleted
-outerlayer_channel = {'list of channels'}; % list of channels
+outerlayer_channel = {'E17' 'E38' 'E43' 'E44' 'E48' 'E49' 'E113' 'E114' 'E119' 'E120' 'E121' 'E125' 'E126' 'E127' 'E128' 'E56' 'E63' 'E68' 'E73' 'E81' 'E88' 'E94' 'E99' 'E107'}; % list of channels
 % recommended list for EGI 128 channel net: {'E17' 'E38' 'E43' 'E44' 'E48' 'E49' 'E113' 'E114' 'E119' 'E120' 'E121' 'E125' 'E126' 'E127' 'E128' 'E56' 'E63' 'E68' 'E73' 'E81' 'E88' 'E94' 'E99' 'E107'}
 
 % 7. Initialize the filters
-highpass = xx; % High-pass frequency
-lowpass  = xx; % Low-pass frequency. We recommend low-pass filter at/below line noise frequency (see manuscript for detail)
+highpass = 2; % High-pass frequency
+lowpass  = 20; % Low-pass frequency. We recommend low-pass filter at/below line noise frequency (see manuscript for detail)
 
 % 8. Are you processing task-related or resting-state EEG data?
 task_eeg = 0; % 0 = resting, 1 = task
 task_event_markers = {'xxx', 'xxx', 'xxx'}; % enter all the event/condition markers
 
 % 9. Do you want to epoch/segment your data?
-epoch_data = 0; % 0 = NO (do not epoch), 1 = YES (epoch data)
-task_epoch_length = [xx xx]; % epoch length in second
-rest_epoch_length = xx; % for resting EEG continuous data will be segmented into consecutive epochs of a specified length (here 2 second) by adding dummy events
+epoch_data = 1; % 0 = NO (do not epoch), 1 = YES (epoch data)
+task_epoch_length = [0 2]; % epoch length in second
+rest_epoch_length = 2; % for resting EEG continuous data will be segmented into consecutive epochs of a specified length (here 2 second) by adding dummy events
 overlap_epoch = 0;     % 0 = NO (do not create overlapping epoch), 1 = YES (50% overlapping epoch)
-dummy_events ={'xxx'}; % enter dummy events name
+dummy_events ={'X'}; % enter dummy events name
 
 % 10. Do you want to remove/correct baseline?
 remove_baseline = 0; % 0 = NO (no baseline correction), 1 = YES (baseline correction)
-baseline_window = [xx  xx]; % baseline period in milliseconds (MS), [] = entire epoch
+baseline_window = []; % baseline period in milliseconds (MS), [] = entire epoch
 
 % 11. Do you want to remove artifact laden epoch based on voltage threshold?
-voltthres_rejection = 0; % 0 = NO, 1 = YES
-volt_threshold = [xx xx]; % lower and upper threshold (in uV)
+voltthres_rejection = 1; % 0 = NO, 1 = YES
+volt_threshold = [-80 80]; % lower and upper threshold (in uV)
 
 % 12. Do you want to perform epoch level channel interpolation for artifact laden epoch? (see manuscript for detail)
 % Note: interpolation is not recommended for systems with less than 20 channels
-interp_epoch = 0; % 0 = NO, 1 = YES.
-frontal_channels = {'list of frontal channels'}; % If you set interp_epoch = 1, enter the list of frontal channels to check (see manuscript for detail)
+interp_epoch = 1; % 0 = NO, 1 = YES.
+frontal_channels = {'E1', 'E8', 'E14', 'E21', 'E25', 'E32', 'E17', 'E125', 'E126', 'E127', 'E128'}; % If you set interp_epoch = 1, enter the list of frontal channels to check (see manuscript for detail)
 % recommended list for EGI 128 channel net: {'E1', 'E8', 'E14', 'E21', 'E25', 'E32', 'E17'}
 % recommended list for EGI 64 channel net: {'E1', 'E5', 'E10', 'E17'}
 
 %13. Do you want to interpolate the bad channels that were removed from data?
 % Note: because miniMADE automatically skips FASTER and ICA, this field will not affect miniMADE preprocessing
-interp_channels = 0; % 0 = NO (Do not interpolate), 1 = YES (interpolate missing channels)
+interp_channels = 1; % 0 = NO (Do not interpolate), 1 = YES (interpolate missing channels)
 
 % 14. Do you want to rereference your data?
-rerefer_data = 0; % 0 = NO, 1 = YES
+rerefer_data = 1; % 0 = NO, 1 = YES
 reref=[]; % Enter electrode name/s or number/s to be used for rereferencing
 % For channel name/s enter, reref = {'channel_name', 'channel_name'};
 % For channel number/s enter, reref = [channel_number, channel_number];
@@ -182,7 +185,7 @@ reref=[]; % Enter electrode name/s or number/s to be used for rereferencing
 save_interim_result = 0; % 0 = NO (Do not save) 1 = YES (save interim results)
 
 % 16. How do you want to save your data? .set or .mat
-output_format = xx; % 1 = .set (EEGLAB data structure), 2 = .mat (Matlab data structure), 3 = BIDS format
+output_format = 1; % 1 = .set (EEGLAB data structure), 2 = .mat (Matlab data structure), 3 = BIDS format
 % If you chose BIDS format, specify subject number location in the file name and the task name
 subject_number_loc = [1 2]; % should enter as [start stop] locations (e.g., par001_eeg.mff would be entered as [4 6])
 task_name = 'task_name'; % should enter the eeg task name you want included in the file name
@@ -198,7 +201,7 @@ allow_missing_chans = 0; % this will replace bad channels with NaNs, 0 = NO and 
 blink_check = 0; % this will check for blinks using the frontal_channels (defined in #12) and remove epochs containing them before replacing bad channels with NaNs
 % This field will only be considered if allow_missing_chans = 1 (YES)
 % WARNING: Make sure frontal_channels contains a list of frontal channels to check... If this variable is not properly defined the code will crash
-chan_thresh = 0; % acceptable values are 0-1 and represent the percent of channels that must be good to keep an epoch
+chan_thresh = 0.3; % acceptable values are 0-1 and represent the percent of channels that must be good to keep an epoch
 % for example: chan_thresh = 0.8 would remove epochs where greater than 80% of channels were replaced by NaNs
 
 % ********* no need to edit beyond this point for EGI .mff data **********
@@ -849,10 +852,10 @@ for subject=1:length(datafile_names)
     
     %% STEP 13: Remove baseline
     if remove_baseline==1
+        EEG = eeg_checkset( EEG );
         if isempty(baseline_window) % set up for entire epoch
             baseline_window = [EEG.times(1) EEG.times(end)]; % set start and stop times for the baseline window
         end
-        EEG = eeg_checkset( EEG );
         EEG = pop_rmbase( EEG, baseline_window);
     end
     
