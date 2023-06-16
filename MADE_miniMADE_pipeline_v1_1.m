@@ -137,7 +137,7 @@ sampling_rate = 500; % set sampling rate (in Hz), if you want to down sample
 %    like to analyse only 64 channels, you can assign the list of channnels to be excluded in the 'outerlayer_channel' variable.    
 delete_outerlayer = 1; % 0 = NO (do not delete outer layer), 1 = YES (delete outerlayer);
 % If you want to delete outer layer, make a list of channels to be deleted
-outerlayer_channel = {'E17' 'E38' 'E43' 'E44' 'E48' 'E49' 'E113' 'E114' 'E119' 'E120' 'E121' 'E125' 'E126' 'E127' 'E128' 'E56' 'E63' 'E68' 'E73' 'E81' 'E88' 'E94' 'E99' 'E107'}; % list of channels
+outerlayer_channel = {'E38', 'E39', 'E43', 'E44', 'E48', 'E49', 'E50', 'E56', 'E57', 'E63', 'E68', 'E73', 'E81', 'E88', 'E94', 'E99', 'E100', 'E101', 'E107', 'E113', 'E114', 'E115', 'E119', 'E120', 'E121'};
 % recommended list for EGI 128 channel net: {'E17' 'E38' 'E43' 'E44' 'E48' 'E49' 'E113' 'E114' 'E119' 'E120' 'E121' 'E125' 'E126' 'E127' 'E128' 'E56' 'E63' 'E68' 'E73' 'E81' 'E88' 'E94' 'E99' 'E107'}
 
 % 7. Initialize the filters
@@ -166,7 +166,7 @@ volt_threshold = [-80 80]; % lower and upper threshold (in uV)
 % 12. Do you want to perform epoch level channel interpolation for artifact laden epoch? (see manuscript for detail)
 % Note: interpolation is not recommended for systems with less than 20 channels
 interp_epoch = 1; % 0 = NO, 1 = YES.
-frontal_channels = {'E1', 'E8', 'E14', 'E21', 'E25', 'E32', 'E17', 'E125', 'E126', 'E127', 'E128'}; % If you set interp_epoch = 1, enter the list of frontal channels to check (see manuscript for detail)
+frontal_channels = {'E1', 'E8', 'E14', 'E17', 'E21', 'E25', 'E32', 'E125', 'E126', 'E127', 'E128'}; % If you set interp_epoch = 1, enter the list of frontal channels to check (see manuscript for detail)
 % recommended list for EGI 128 channel net: {'E1', 'E8', 'E14', 'E21', 'E25', 'E32', 'E17'}
 % recommended list for EGI 64 channel net: {'E1', 'E5', 'E10', 'E17'}
 delete_frontal_channels = 1; % 0 = NO (do not delete frontal channels), 1 = YES (delete frontal channels);
