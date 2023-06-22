@@ -1184,6 +1184,8 @@ for subject=1:length(datafile_names)
         else
             EEG = pop_select( EEG,'nochannel', frontal_channels_idx);
             EEG = eeg_checkset( EEG );
+            % remove frontal channels from channels_analysed
+            channels_analysed = channels_analysed(~ismember({channels_analysed.labels}, frontal_channels));
         end
     end
     
